@@ -23,17 +23,16 @@ import os
 import re
 from configparser import ConfigParser as SafeParser
 
-
-OPTIONS_DEFAULTS = dict(
-    num=6,
-    caps=True,
-    specials=0,
-    delimiter="",
-    randomsource="system",
-    verbose=0,
-    wordlist=["en_eff"],
-    dice_sides=6,
-    )
+OPTIONS_DEFAULTS = {
+    'num': 6,
+    'caps': True,
+    'specials': 0,
+    'delimiter':"",
+    'randomsource': "system",
+    'verbose': 0,
+    'wordlist': ["en_eff"],
+    'dice_sides': 6,
+}
 
 
 #: valid wordlist names
@@ -114,7 +113,7 @@ def get_config_dict(
     (single and double).
     """
     result = dict(defaults_dict)
-    found, parser = get_configparser(path_list)
+    _found, parser = get_configparser(path_list)
     for key, val in defaults_dict.items():
         if not parser.has_option(section, key):
             continue

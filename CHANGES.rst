@@ -11,6 +11,7 @@ Changes
   harder to remember), we now append them always at the end of the
   passphrase. Fixed #116.
 - Update dependency list for generating docs.
+- Plenty of reformatting to keep `ruff` happy.
 
 
 1.0.1 (2024-12-24)

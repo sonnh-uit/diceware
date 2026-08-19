@@ -1,5 +1,6 @@
 import logging
-from diceware.logger import logger, configure
+
+from diceware.logger import configure, logger
 
 
 def test_logger_exists():

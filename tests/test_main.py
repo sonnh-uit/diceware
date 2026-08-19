@@ -1,8 +1,9 @@
 #
 # Tests for __main__.py
 #
-from diceware.__main__ import run
 import pytest
+
+from diceware.__main__ import run
 
 
 def test_can_run_run(monkeypatch, capsys):
@@ -12,7 +13,7 @@ def test_can_run_run(monkeypatch, capsys):
     with pytest.raises(SystemExit) as exc_info:
         run()
     assert exc_info.value.code == 0
-    out, err = capsys.readouterr()
+    out, _err = capsys.readouterr()
     assert "usage: can_run_run [-h]" in out
 
 

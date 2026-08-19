@@ -1,6 +1,7 @@
 import logging
-import pytest
 import sys
+
+import pytest
 
 
 class InputMock(object):
@@ -26,15 +27,13 @@ class InputMock(object):
     To be used with the `monkeypatch` pytest fixture, to replace
     `diceware.random_sources.input_func`.
     """
-    fake_input_values = []
-
-    def __init__(self, fake_input_values=[]):
-        self.fake_input_values = fake_input_values
+    def __init__(self, fake_input_values=None):
+        self.fake_input_values = fake_input_values or []
         self.fake_input_values.reverse()
 
     def __call__(self, prompt=''):
         curr_value = self.fake_input_values.pop()
-        print("%s%s" % (prompt, curr_value))
+        print("{}{}".format(prompt, curr_value))
         return curr_value
 
 

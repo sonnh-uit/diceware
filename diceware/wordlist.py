@@ -59,14 +59,12 @@ def get_wordlist_dirs():
     if (xdg_data_home == "") and (user_home != "~"):
         xdg_data_home = os.path.join(user_home, ".local", "share")
     if xdg_data_home:
-        xdg_data_dirs = "%s:%s" % (xdg_data_home, xdg_data_dirs)
+        xdg_data_dirs = "{}:{}".format(xdg_data_home, xdg_data_dirs)
     local_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "wordlists"))
-    result = [local_dir] + list(
-        [
+    result = [local_dir] + [
             os.path.join(os.path.abspath(path), "diceware")
             for path in xdg_data_dirs.split(":")
         ]
-    )
     return result
 
 
@@ -107,7 +105,7 @@ def get_wordlist_path(name):
     not exist, `None` is returned.
     """
     if not RE_WORDLIST_NAME.match(name):
-        raise ValueError("Not a valid wordlist name: %s" % name)
+        raise ValueError("Not a valid wordlist name: {}".format(name))
     for wordlists_dir in get_wordlist_dirs():
         if not os.path.isdir(wordlists_dir):
             continue
@@ -119,7 +117,7 @@ def get_wordlist_path(name):
                 return os.path.join(wordlists_dir, filename)
 
 
-class WordList(object):
+class WordList:
     """A word list contains words for building passphrases.
 
     `path` is the path of the wordlist file. With single dash (``-``) as path,
@@ -149,12 +147,12 @@ class WordList(object):
         self.path = path
         self.fd = None
         if self.path == "-":
-            self.fd = tempfile.SpooledTemporaryFile(
+            self.fd = tempfile.SpooledTemporaryFile(   # noqa: SIM115
                     max_size=MAX_IN_MEM_SIZE, mode="w+")
             self.fd.write(sys.stdin.read())
             self.fd.seek(0)
         else:
-            self.fd = open(self.path, "r")
+            self.fd = open(self.path, "r")   # noqa: SIM115
         self.signed = self.is_signed()
 
     def __del__(self):
@@ -184,9 +182,7 @@ class WordList(object):
         self.fd.seek(0)
         line1 = self.fd.readline()
         self.fd.seek(0)
-        if line1.rstrip() == "-----BEGIN PGP SIGNED MESSAGE-----":
-            return True
-        return False
+        return line1.rstrip() == "-----BEGIN PGP SIGNED MESSAGE-----"
 
     def refine_entry(self, entry):
         """Apply modifications to form a proper wordlist entry.

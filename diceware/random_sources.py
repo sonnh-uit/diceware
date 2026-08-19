@@ -1,5 +1,5 @@
 #  diceware -- passphrases to remember
-#  Copyright (C) 2015-2017  Uli Fouquet and contributors.
+#  Copyright (C) 2015-2026  Uli Fouquet and contributors.
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -67,13 +67,12 @@ generating a passphrase.
 
 """
 import math
-import sys
 import re
+import sys
 from random import SystemRandom
 
-
 input_func = input
-if sys.version[0] < "3":
+if sys.version_info.major < 3:
     input_func = raw_input  # NOQA: F821  # defined in python 2 only.
 
 
@@ -138,21 +137,20 @@ class RealDiceRandomSource(object):
             raise ValueError
         if (self.dice_sides ** num_rolls) < len(sequence):
             print(
-                "Warning: entropy is reduced! Using only first %s of %s "
-                "words/items of your wordlist." % (
+                "Warning: entropy is reduced! Using only first {} of {} "
+                "words/items of your wordlist.".format(
                     self.dice_sides ** num_rolls, len(sequence)
                 )
             )
         print(
-            "Please roll %s dice (or a single dice %s times)." % (
+            "Please roll {} dice (or a single dice {} times).".format(
                 num_rolls, num_rolls))
-        return
 
     def get_num_rolls(self, seq_len):
         """Compute how many dice rolls we need to pick a value from a sequence
         """
         num_rolls = int(math.log(seq_len, self.dice_sides))
-        if num_rolls < 1:
+        if num_rolls < 1:  # noqa: PLR1730
             # If this happens, there are less values in the sequence to
             # choose from than there are dice sides.
             num_rolls = 1
@@ -184,8 +182,7 @@ class RealDiceRandomSource(object):
         valid_rolls = [str(x) for x in range(1, self.dice_sides + 1)]
         while len(rolls) != num_rolls or not set(rolls).issubset(valid_rolls):
             rolls = re.split(r'\D+', input_func(
-                "Enter your %d dice results, separated by non-digits: "
-                % num_rolls))
+                "Enter your {:d} dice results, separated by non-digits: ".format(num_rolls)))
             # remove leading/trailing Nones
             rolls = list(filter(None, rolls))
         return [(num_rolls - i, roll) for i, roll in enumerate(rolls)]

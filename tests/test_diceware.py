@@ -1,16 +1,25 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals  # noqa: UP010
+
 import datetime
 import os
-import pytest
 import re
 import sys
-from io import StringIO
 from errno import EISDIR
+from io import StringIO
+
+import pytest
+
 from diceware import (
-    SPECIAL_CHARS, append_special_char, get_passphrase,
-    handle_options, main, __version__, print_version, get_random_sources,
-    get_wordlist_names
-    )
+    SPECIAL_CHARS,
+    __version__,
+    append_special_char,
+    get_passphrase,
+    get_random_sources,
+    get_wordlist_names,
+    handle_options,
+    main,
+    print_version,
+)
 
 
 class FakeRandom(object):
@@ -150,7 +159,7 @@ class TestHandleOptions(object):
     def test_handle_options_considers_configfile(self, home_dir):
         # defaults from a local configfile are respected
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(
+        config_file.write("\n".join(  # noqa: FLY002
             ["[diceware]",
              "num = 3",
              "caps = off",
@@ -172,7 +181,7 @@ class TestHandleOptions(object):
                 return parser
 
         monkeypatch.setattr(
-            diceware, 'get_random_sources', lambda: dict(foo=FakePlugin))
+                diceware, 'get_random_sources', lambda: {"foo": FakePlugin})
         options = handle_options([])
         assert options.foo == 2
 
@@ -268,10 +277,10 @@ class TestDicewareModule(object):
     def test_print_version_current_year(self, capsys):
         # in version infos we display the current year
         print_version()
-        pattern = r'.*\(C\) (20[0-9]{2}([,\-] ?))*%s.*' % (
-            datetime.datetime.now().year)
-        out, err = capsys.readouterr()
-        assert re.match(pattern, out, re.M + re.S) is not None
+        pattern = r'.*\(C\) (20[0-9]{2}([,\-] ?))*%s.*' % (  # noqa: UP031
+            datetime.datetime.now(datetime.timezone.utc).year)
+        out, _err = capsys.readouterr()
+        assert re.match(pattern, out, re.MULTILINE + re.DOTALL) is not None
 
     def test_main(self, capsys):
         # we can get a passphrase
@@ -288,7 +297,7 @@ class TestDicewareModule(object):
         with pytest.raises(SystemExit) as exc_info:
             main()
         assert exc_info.value.code == 0
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         expected_path = os.path.join(
             os.path.dirname(__file__), 'exp_help_output.txt')
         with open(expected_path, 'r') as fd:
@@ -303,7 +312,7 @@ class TestDicewareModule(object):
         with pytest.raises(SystemExit) as exc_info:
             main()
         assert exc_info.value.code == 0
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert __version__ in out
 
     def test_main_argv(self, argv_handler):
@@ -319,7 +328,7 @@ class TestDicewareModule(object):
         custom_path.write('mysingleword\n')
         tmpdir.chdir()
         main(['-n', '1', 'mywordlist.txt', ])
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert out == 'Mysingleword\n'
 
     def test_main_infile_stdin(self, argv_handler, capsys):
@@ -327,7 +336,7 @@ class TestDicewareModule(object):
         sys.stdin = StringIO("word1\n")
         sys.argv = ['diceware', '-n', '2', '-']
         main()
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert out == 'Word1Word1\n'
 
     def test_main_infile_nonexisting(self, argv_handler, capsys):
@@ -337,7 +346,7 @@ class TestDicewareModule(object):
         with pytest.raises(SystemExit) as exc_info:
             main()
         assert exc_info.value.code == 1
-        out, err = capsys.readouterr()
+        _out, err = capsys.readouterr()
         assert "The file 'nonexisting' does not exist." in err
 
     def test_main_infile_not_a_file(self, argv_handler, tmpdir):
@@ -354,7 +363,7 @@ class TestDicewareModule(object):
         sys.stdin = StringIO("word1\n")
         sys.argv = ['diceware', '-n', '2', '-d', 'DELIM', '-']
         main()
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert out == 'Word1DELIMWord1\n'
 
     def test_main_specialchars(self, argv_handler, capsys):
@@ -362,7 +371,7 @@ class TestDicewareModule(object):
         sys.stdin = StringIO("word1\n")
         sys.argv = ['diceware', '-n', '1', '-s', '1', '-']
         main()
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         specials = [x for x in out if x in SPECIAL_CHARS]
         assert len(specials) > 0
 
@@ -372,7 +381,7 @@ class TestDicewareModule(object):
         wordlists_dir.join('wordlist_bar.asc').write("bar\n")
         sys.argv = ['diceware', '-w', 'foo']
         main()
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert out == 'FooFooFooFooFooFoo\n'
 
     def test_main_can_show_wordlists(self, argv_handler, capsys, wordlists_dir):
@@ -381,5 +390,5 @@ class TestDicewareModule(object):
         with pytest.raises(SystemExit) as exc_info:
             main()
         assert exc_info.value.code == 0
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert str(wordlists_dir) in out

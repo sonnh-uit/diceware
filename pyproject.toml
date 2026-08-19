@@ -72,3 +72,11 @@ packages = ["diceware", "diceware.wordlists" ]
 version = {attr = "diceware.__version__"}
 readme = {file = ["README.rst", "CHANGES.rst"]}
 
+[tool.ruff]
+# py27-conditioned ignores...
+# UP004 forbids inheriting from `object`, needed to create new-style classes
+#       in py27
+# UP024 requires IOError to be an alias of OSError
+# UP032 requires f-strings
+# UP036 forbids Python < 3
+lint.ignore = ["UP004", "UP024", "UP032", "UP036"]

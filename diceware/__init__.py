@@ -16,17 +16,22 @@
 """diceware -- rememberable passphrases
 """
 import argparse
+import logging
 import os
 import sys
-import logging
 from errno import ENOENT
 from random import SystemRandom
-from .__about__ import version as __version__
+
 from diceware.config import get_config_dict
 from diceware.logger import configure
 from diceware.wordlist import (
-    WordList, get_wordlist_path, get_wordlist_dirs, get_wordlist_names,
-    )
+    WordList,
+    get_wordlist_dirs,
+    get_wordlist_names,
+    get_wordlist_path,
+)
+
+from .__about__ import version as __version__
 
 #: Special chars inserted on demand
 SPECIAL_CHARS = r"~!#$%^&*()-=+[]\{}:;" + r'"' + r"'<>?/0123456789"
@@ -52,7 +57,7 @@ GPL_TEXT = (
 def print_version():
     """Output current version and other infos.
     """
-    print("diceware %s" % __version__)
+    print("diceware {}".format(__version__))
     print("Copyright (C) 2015-2025 Uli Fouquet")
     print("diceware is based on suggestions of Arnold G. Reinhold.")
     print("See http://diceware.com for details.")
@@ -79,7 +84,7 @@ def get_random_sources():
     respective method in the standard Python lib `random` module.
     """
     from .__about__ import random_sources
-    result = dict()
+    result = {}
     for name, spec in random_sources.items():
         module, func = spec.split(":")
         module = __import__(module, fromlist=['__name__'], level=0)
@@ -123,15 +128,15 @@ def handle_options(args):
         '-r', '--randomsource', default='system', choices=rnd_sources,
         metavar="SOURCE",
         help=(
-            "Get randomness from this source. Possible values: `%s'. "
-            "Default: system" % "', `".join(sorted(rnd_sources))))
+            "Get randomness from this source. Possible values: `{}'. "
+            "Default: system".format("', `".join(sorted(rnd_sources)))))
     parser.add_argument(
         '-w', '--wordlist', default=['en_eff'], choices=wordlist_names,
         metavar="NAME", nargs='*',
         help=(
-            "Use words from this wordlist. Possible values: `%s'. "
+            "Use words from this wordlist. Possible values: `{}'. "
             "Wordlists are stored in the folders displayed below. "
-            "Default: en_eff" % "', `".join(wordlist_names)))
+            "Default: en_eff".format("', `".join(wordlist_names))))
     realdice_group = parser.add_argument_group(
         "Arguments related to `realdice' randomsource",
         )
@@ -238,7 +243,7 @@ def main(args=None):
     except (OSError, IOError) as infile_error:
         if getattr(infile_error, 'errno', 0) == ENOENT:
             logging.getLogger('ulif.diceware').error(
-                "The file '%s' does not exist." % infile_error.filename)
+                "The file '{}' does not exist.".format(infile_error.filename))
             raise SystemExit(1)
         else:
             raise

@@ -1,5 +1,6 @@
 import datetime
 import os
+
 import pytest
 
 
@@ -20,4 +21,4 @@ class TestManpage(object):
     @pytest.mark.packaging
     def test_manpage_contains_current_year(self, manpage):
         # the current year appears at least in the manpage
-        assert str(datetime.datetime.now().year) in manpage
+        assert str(datetime.datetime.now(datetime.timezone.utc).year) in manpage

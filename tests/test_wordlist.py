@@ -1,12 +1,19 @@
 import math
 import os
-import pytest
 import sys
 from io import StringIO
+
+import pytest
+
 from diceware.wordlist import (
-    get_wordlist_dirs, get_wordlists_dir, RE_WORDLIST_NAME,
-    RE_NUMBERED_WORDLIST_ENTRY, RE_VALID_WORDLIST_FILENAME, get_wordlist_path,
-    get_wordlist_names, WordList,
+    RE_NUMBERED_WORDLIST_ENTRY,
+    RE_VALID_WORDLIST_FILENAME,
+    RE_WORDLIST_NAME,
+    WordList,
+    get_wordlist_dirs,
+    get_wordlist_names,
+    get_wordlist_path,
+    get_wordlists_dir,
 )
 
 
@@ -267,7 +274,7 @@ class TestWordList(object):
             src = os.path.join(wordlists_dir, name)
             w_list = list(WordList(src))
             length = len(w_list)
-            log2, log6 = math.log(length, 2), math.log(length, 6)
+            log2, log6 = math.log(length, 2), math.log(length, 6)  # noqa: FURB163
             assert (6**int(log6) == length) or (2**int(log2) == length)
 
     def test_get_wordlist_simple(self, tmpdir):

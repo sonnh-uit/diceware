@@ -1,8 +1,13 @@
 import os
+
 from diceware.config import (
-    OPTIONS_DEFAULTS, valid_locations, get_configparser,
-    string_to_wlist_list, get_config_dict, SafeParser,
-    )
+    OPTIONS_DEFAULTS,
+    SafeParser,
+    get_config_dict,
+    get_configparser,
+    string_to_wlist_list,
+    valid_locations,
+)
 
 
 class TestConfigModule(object):
@@ -52,25 +57,25 @@ class TestConfigModule(object):
     def test_get_configparser(self, tmpdir):
         # we can parse simple configs
         conf_path = tmpdir / "sample.ini"
-        conf_path.write("\n".join(["[diceware]", "num=1", ""]))
-        found, config = get_configparser([str(conf_path), ])
+        conf_path.write("[diceware]\nnum=1\n")
+        found, _config = get_configparser([str(conf_path), ])
         assert found == [str(conf_path)]
 
     def test_get_configparser_empty_list(self):
         # we cope with empty config file lists
-        found, config = get_configparser([])
+        found, _config = get_configparser([])
         assert found == []
 
     def test_get_configparser_no_list(self, home_dir):
         # we cope with no list at all
-        found, config = get_configparser()
+        found, _config = get_configparser()
         assert found == []
 
     def test_get_configparser_default_path(self, home_dir):
         # a config file in $HOME is looked up by default
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[diceware]", "num = 3", ""]))
-        found, config = get_configparser()
+        config_file.write("[diceware]\nnum = 3\n")
+        found, _config = get_configparser()
         assert found == [str(config_file)]
 
     def test_string_to_wlist_list_returns_lists(self):
@@ -92,14 +97,14 @@ class TestGetConfigDict(object):
     def test_get_config_dict_no_diceware_section(self, home_dir):
         # we cope with config files, if they do not contain a diceware config
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[not-diceware]", "num = 3", ""]))
+        config_file.write("[not-diceware]\nnum = 3\n")
         conf_dict = get_config_dict()
         assert conf_dict == OPTIONS_DEFAULTS
 
     def test_get_config_dict(self, home_dir):
         # we can get config values from files as a dict.
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[diceware]", "num = 3", ""]))
+        config_file.write("[diceware]\nnum = 3\n")
         conf_dict = get_config_dict()
         assert len(conf_dict) == len(OPTIONS_DEFAULTS)
         assert conf_dict != OPTIONS_DEFAULTS
@@ -116,9 +121,9 @@ class TestGetConfigDict(object):
 
     def test_get_config_dict_arg_defaults_dict(self, home_dir):
         # we can change the dict of defaults used.
-        custom_defaults = dict(num=42)
+        custom_defaults = {"num": 42}
         conf_dict = get_config_dict(defaults_dict=custom_defaults)
-        assert conf_dict == dict(num=42)
+        assert conf_dict == {"num": 42}
         assert conf_dict is not custom_defaults
 
     def test_get_config_dict_arg_section(self, home_dir):
@@ -131,39 +136,39 @@ class TestGetConfigDict(object):
     def test_get_config_dict_int(self, home_dir):
         # integer values are interpolated correctly
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[diceware]", "num=3", ""]))
+        config_file.write("[diceware]\nnum=3\n")
         conf_dict = get_config_dict()
-        assert "num" in conf_dict.keys()
+        assert "num" in conf_dict
         assert conf_dict["num"] == 3
 
     def test_get_config_dict_bool(self, home_dir):
         # boolean values are interpolated correctly
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[diceware]", "caps = Off", ""]))
+        config_file.write("[diceware]\ncaps = Off\n")
         conf_dict = get_config_dict()
-        assert "caps" in conf_dict.keys()
+        assert "caps" in conf_dict
         assert conf_dict["caps"] is False
-        config_file.write("\n".join(["[diceware]", "caps = On", ""]))
+        config_file.write("[diceware]\ncaps = On\n")
         assert get_config_dict()["caps"] is True
 
     def test_get_config_dict_ignore_irrelevant(self, home_dir):
         # values that have no default are ignored
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[diceware]", "foo = bar", ""]))
+        config_file.write("[diceware]\nfoo = bar\n")
         conf_dict = get_config_dict()
-        assert "foo" not in conf_dict.keys()
+        assert "foo" not in conf_dict
 
     def test_get_config_dict_string(self, home_dir):
         # string values are interpolated correctly
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[diceware]", "delimiter=!", ""]))
+        config_file.write("[diceware]\ndelimiter=!")
         conf_dict = get_config_dict()
         assert conf_dict["delimiter"] == "!"
 
     def test_get_config_dict_string_empty(self, home_dir):
         # we can set empty string values
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[diceware]", "delimiter=", ""]))
+        config_file.write("[diceware]\ndelimiter=\n")
         conf_dict = get_config_dict()
         assert conf_dict["delimiter"] == ""
 
@@ -172,14 +177,15 @@ class TestGetConfigDict(object):
         config_file = home_dir / ".diceware.ini"
         for string_in_conf, expected_parsed in (
                 ('" "', " "), ("' '", " "), ('"\t\t"', "\t\t")):
-            config_file.write("[diceware]\ndelimiter=%s \n" % string_in_conf)
+            config_file.write("[diceware]\ndelimiter={} \n".format(
+                string_in_conf))
             conf_dict = get_config_dict()
             assert conf_dict["delimiter"] == expected_parsed
 
     def test_get_config_dict_returns_wordlists_as_list(self, home_dir):
         # wordlist settings are returned as lists
         config_file = home_dir / ".diceware.ini"
-        config_file.write("\n".join(["[diceware]", "wordlist=en_eff", ""]))
+        config_file.write("[diceware]\nwordlist=en_eff\n")
         config_dict = get_config_dict()
         assert config_dict["wordlist"] == ["en_eff"]
 
@@ -195,7 +201,7 @@ class TestSampleIni(object):
         found = parser.read([sample_path, ])
         assert sample_path in found
         assert parser.has_section('diceware')
-        for key, val in OPTIONS_DEFAULTS.items():
+        for key in OPTIONS_DEFAULTS:
             # make sure option keywords are contained.
             assert parser.has_option('diceware', key)
 
@@ -206,4 +212,4 @@ class TestSampleIni(object):
         parser = SafeParser()
         parser.read([sample_path, ])
         for option in parser.options('diceware'):
-            assert option in OPTIONS_DEFAULTS.keys()
+            assert option in OPTIONS_DEFAULTS

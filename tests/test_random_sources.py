@@ -1,14 +1,18 @@
-from __future__ import unicode_literals
-import pytest
-import sys
+from __future__ import unicode_literals  # noqa: UP010
+
 import argparse
-from conftest import InputMock
+import sys
 from io import StringIO
-from itertools import product, chain
-from diceware import main, get_random_sources
+from itertools import chain, product
+
+import pytest
+from conftest import InputMock
+
+from diceware import get_random_sources, main
 from diceware.random_sources import (
-    SystemRandomSource, RealDiceRandomSource,
-    )
+    RealDiceRandomSource,
+    SystemRandomSource,
+)
 
 
 @pytest.fixture(scope="function")
@@ -89,7 +93,7 @@ class TestRealDiceRandomSource(object):
         assert result1 == "foo"
         result2 = input_func("Enter more values: ")
         assert result2 == "bar"
-        out, err = capsys.readouterr()             # captured stdout/stderr
+        out, _err = capsys.readouterr()             # captured stdout/stderr
         assert out == "Enter some values: foo\nEnter more values: bar\n"
 
     def test_options_are_stored(self):
@@ -246,17 +250,17 @@ class TestRealDiceRandomSource(object):
         src = RealDiceRandomSource(None)
         src.dice_sides = 10
         src.pre_check(1, list(range(10)))
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert "entropy is reduced" not in out
         src.pre_check(1, list(range(11)))
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert "entropy is reduced" in out
 
     def test_pre_check_requests_rolling_dice(self, capsys):
         # we request the user to roll dice
         src = RealDiceRandomSource(None)
         src.pre_check(5, ['doesntmatter'])
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert "Please roll 5 dice (or a single dice 5 times)." in out
 
     def test_choice_copes_with_sequence_len_1(self, capsys, fake_input):
@@ -264,7 +268,7 @@ class TestRealDiceRandomSource(object):
         src = RealDiceRandomSource(None)
         fake_input(["1"])
         picked = src.choice([1])
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert "roll" not in out
         assert picked == 1
 
@@ -277,14 +281,14 @@ class TestRealDiceRandomSource(object):
         for choice_length in (2, 3):
             fake_input(["1"])
             picked = src.choice(range(1, choice_length + 1))
-            out, err = capsys.readouterr()
+            out, _err = capsys.readouterr()
             assert "roll 1 dice" in out
             assert picked == 1
         # A length of 4,5 requires 2 rolls
         for choice_length in (4, 5):
             fake_input(["1", "2"])
             picked = src.choice(range(1, choice_length + 1))
-            out, err = capsys.readouterr()
+            out, _err = capsys.readouterr()
             assert "roll 1 dice" in out
             assert picked == 1
 
@@ -312,12 +316,12 @@ class TestRealDiceRandomSource(object):
         src.dice_sides = 4
         fake_input(["2", "3"])  # no value out of bounds (> 3)
         picked = src.choice([1, 2, 3])
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert picked == 2
         assert out.count("Please roll dice again") == 0
         fake_input(["4", "4", "1"])
         picked = src.choice([1, 2, 3])
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert picked == 1
         assert out.count("Please roll dice again") == 2
 
@@ -352,7 +356,7 @@ class TestRealDiceRandomSource(object):
         options = argparse.Namespace(dice_sides=2)  # a coin
         src = RealDiceRandomSource(options)
         picked = src.choice(['a', 'b', 'c', 'd'])
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         # must throw a coin 2 times to pick one out of 4 items
         assert "Please roll 2 dice" in out
         assert picked == 'b'
@@ -373,5 +377,5 @@ class TestRealDiceRandomSource(object):
         sys.stdin = StringIO("w1\nw2\nw3\nw4\nw5\nw6\n")
         sys.argv = ['diceware', '-r', 'realdice', '-n', '2', '-d', '#', '-']
         main()
-        out, err = capsys.readouterr()
+        out, _err = capsys.readouterr()
         assert out.endswith('W1#W3\n')

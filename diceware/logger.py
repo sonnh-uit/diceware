@@ -27,7 +27,6 @@ do. Other components might add other handlers.
 """
 import logging
 
-
 #: Logger that can be used for all diceware related messages.
 logger = logging.getLogger("ulif.diceware")
 logger.addHandler(logging.NullHandler())
